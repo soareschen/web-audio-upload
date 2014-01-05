@@ -1,0 +1,59 @@
+<html>
+<head>
+
+</head>
+<body>
+<button id="record">Record</button>
+<button id="stop">Stop</button>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+$(function() {
+  $('#record').click(function() {
+    navigator.webkitGetUserMedia(
+      {audio: true}, 
+      function(audioStream) {
+        console.log(audioStream)
+
+        var socket = io.connect('/')
+        socket.on('error', function(err) {
+          console.log('socket.io error:', err)
+        })
+
+        var context = new webkitAudioContext()
+        var audioSource = context.createMediaStreamSource(audioStream)
+
+        var scriptNode = context.createScriptProcessor(1024,1,1)
+        scriptNode.onaudioprocess = function(e) {
+          //console.log('got audio process event', e)
+
+          var inBuffer = e.inputBuffer.getChannelData(0)
+          var outBuffer = e.outputBuffer.getChannelData(0)
+
+          socket.emit('data', inBuffer)
+          //outBuffer.set(inBuffer)
+        }
+
+        audioSource.connect(scriptNode)
+        scriptNode.connect(context.destination)
+        //audioSource.connect(context.destination)
+
+        $('#stop').click(function() {
+          console.log('stopping upload')
+
+          socket.emit('end')
+
+          audioStream.stop()
+          scriptNode.onaudioprocess = null
+          audioSource.disconnect()
+          scriptNode.disconnect()
+        })
+      },
+      function(err) {
+        console.log('failed to get microphone', err)
+      })
+  })
+})
+</script>
+</body>
+</html>

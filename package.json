@@ -1,0 +1,20 @@
+{
+  "author": {
+    "name": "Soares Chen",
+    "email": "soares.chen@gmail.com",
+    "url": "http://soareschen.com"
+  },
+  "name": "web-audio-upload-demo",
+  "desription": "Web Audio Upload Demo",
+  "version": "0.0.1",
+  "homepage": "https://github.com/soareschen/web-audio-upload",
+  "repository": {
+    "url": "git@github.com:soareschen/web-audio-upload.git"
+  },
+  "dependencies": {
+    "socket.io": "~0.9.16"
+  },
+  "licenses": {
+    "type": "MIT"
+  }
+}
