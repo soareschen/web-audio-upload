@@ -11,6 +11,10 @@ var attachSocketIo = function(server) {
   ioServer.sockets.on('connection', function(socket) {
     console.log('new socket.io connection')
     
+    /*
+     * Helper function for creating new file write stream
+     * for each new recording in the same connection
+     */
     var writeStream = null
     var getWriteStream = function() {
       if(writeStream) return writeStream
@@ -28,6 +32,11 @@ var attachSocketIo = function(server) {
       writeStream = null
     }
 
+    /*
+     * The data is sent very inefficiently as a JSON array
+     * of float over web socket. We convert the floating points 
+     * into 64-bit data in little endian as the raw audio format.
+     */
     socket.on('data', function(floatArray) {
       var writeStream = getWriteStream()
 

@@ -9,7 +9,13 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 $(function() {
+  var recording = false
+
   $('#record').click(function() {
+    // Avoid hitting record multiple times
+    if(recording) return
+    recording = true
+
     navigator.webkitGetUserMedia(
       {audio: true}, 
       function(audioStream) {
@@ -23,6 +29,7 @@ $(function() {
         var context = new webkitAudioContext()
         var audioSource = context.createMediaStreamSource(audioStream)
 
+        // Audio is captured using Web Audio Script Processor node
         var scriptNode = context.createScriptProcessor(1024,1,1)
         scriptNode.onaudioprocess = function(e) {
           //console.log('got audio process event', e)
@@ -38,9 +45,10 @@ $(function() {
         scriptNode.connect(context.destination)
         //audioSource.connect(context.destination)
 
-        $('#stop').click(function() {
+        $('#stop').one('click', function() {
           console.log('stopping upload')
 
+          recording = false
           socket.emit('end')
 
           audioStream.stop()
